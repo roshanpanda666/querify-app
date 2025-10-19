@@ -74,7 +74,7 @@ export default function HomePage() {
             </button>
           </Link>
         ) : (
-          <Link href="/">
+          <Link href="/login">
             <button className="px-8 py-3 bg-red-600 hover:bg-red-500 rounded-xl shadow-lg font-semibold transition-all">
               🔒 Log In to Generate Query
             </button>
