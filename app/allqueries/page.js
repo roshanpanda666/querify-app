@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function FetchDataPage() {
-  const [data, setData] = useState([]); // always default to empty array
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -13,8 +14,6 @@ export default function FetchDataPage() {
         if (!res.ok) throw new Error("Failed to fetch data");
 
         const json = await res.json();
-
-        // Ensure data is always an array
         const usersArray = Array.isArray(json) ? json : json.data ? json.data : [];
         setData(usersArray);
       } catch (err) {
@@ -28,38 +27,70 @@ export default function FetchDataPage() {
     fetchData();
   }, []);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
+  if (loading) return <p className="text-center mt-10 text-gray-400">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">Error: {error}</p>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">All Users & Queries</h1>
-      {data.length === 0 && <p>No users found.</p>}
-      {data.map((user, idx) => (
-        <div key={idx} className="p-4 border rounded shadow">
-          <h2 className="font-semibold">{user.username} ({user.email})</h2>
-          {Array.isArray(user.queries) && user.queries.length > 0 ? (
-            <ul className="mt-2 space-y-2">
-              {user.queries.map((q, i) => (
-                <li key={i} className="border p-2 rounded">
-                  <p className="font-medium">Q: {q.query}</p>
-                  {Array.isArray(q.answers) && q.answers.length > 0 ? (
-                    <ul className="ml-4 list-disc">
-                      {q.answers.map((ans, j) => (
-                        <li key={j}>{ans}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="ml-4 text-gray-500">No answers yet.</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500 mt-2">No queries yet.</p>
-          )}
-        </div>
-      ))}
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white p-8 flex flex-col items-center">
+      <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        Users & Queries
+      </h1>
+
+      <motion.div
+        className="w-full max-w-5xl space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        {data.length === 0 && <p className="text-center text-gray-400">No users found.</p>}
+
+        {data.map((user, idx) => (
+          <motion.div
+            key={idx}
+            variants={itemVariants}
+            className="p-6 bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg"
+          >
+            <h2 className="font-semibold text-lg mb-3">
+              {user.username} <span className="text-gray-400 text-sm">({user.email})</span>
+            </h2>
+
+            {Array.isArray(user.queries) && user.queries.length > 0 ? (
+              <div className="space-y-4">
+                {user.queries.map((q, i) => (
+                  <motion.div
+                    key={i}
+                    className="p-4 border border-white/20 rounded-lg hover:bg-white/10 transition"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <p className="font-medium text-blue-400">Q: {q.query}</p>
+                    {Array.isArray(q.answers) && q.answers.length > 0 ? (
+                      <ul className="ml-4 list-disc mt-2 text-gray-300">
+                        {q.answers.map((ans, j) => (
+                          <li key={j}>{ans}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="ml-4 text-gray-500 mt-2">No answers yet.</p>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 mt-2">No queries yet.</p>
+            )}
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   );
 }
