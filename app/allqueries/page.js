@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function FetchDataPage() {
   const [data, setData] = useState([]);
@@ -67,22 +68,17 @@ export default function FetchDataPage() {
             {Array.isArray(user.queries) && user.queries.length > 0 ? (
               <div className="space-y-4">
                 {user.queries.map((q, i) => (
-                  <motion.div
-                    key={i}
-                    className="p-4 border border-white/20 rounded-lg hover:bg-white/10 transition"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <p className="font-medium text-blue-400">Q: {q.query}</p>
-                    {Array.isArray(q.answers) && q.answers.length > 0 ? (
-                      <ul className="ml-4 list-disc mt-2 text-gray-300">
-                        {q.answers.map((ans, j) => (
-                          <li key={j}>{ans}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="ml-4 text-gray-500 mt-2">No answers yet.</p>
-                    )}
-                  </motion.div>
+                  <Link key={i} href={`/query/${q._id}`} passHref>
+                    <motion.div
+                      className="p-4 border border-white/20 rounded-lg hover:bg-white/10 transition cursor-pointer"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <p className="font-medium text-blue-400">Q: {q.query}</p>
+                      <p className="text-gray-500 mt-1 text-sm">
+                        Tap to view details →
+                      </p>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             ) : (

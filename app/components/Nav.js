@@ -6,13 +6,13 @@ export default function Nav() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 bg-gray-900/60 backdrop-blur-md border-b border-white/10 shadow-md">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-gray-900/50 via-gray-800/40 to-gray-900/50 backdrop-blur-xl border-b border-white/10 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/">
-              <span className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              <span className="font-bold text-xl bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent drop-shadow-sm">
                 Querify
               </span>
             </Link>
@@ -90,7 +90,7 @@ export default function Nav() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-gray-800/60 backdrop-blur-md border-t border-white/10 px-2 pt-2 pb-4 space-y-1 rounded-b-xl shadow-lg">
+        <div className="md:hidden bg-gray-800/50 backdrop-blur-xl border-t border-white/10 px-2 pt-2 pb-4 space-y-1 rounded-b-xl shadow-lg">
           <Link
             href="/"
             className="block px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"

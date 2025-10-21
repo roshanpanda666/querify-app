@@ -2,26 +2,23 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-
+import Link from "next/link";
 export default function ProfilePage() {
   const { data: session } = useSession();
-  const [queries, setQueries] = useState([]);
+  const [userData, setUserData] = useState(null); // full user data
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchQueries = async () => {
-      if (!session?.user?.email) return;
-      try {
-        const res = await fetch("/api/get_user_queries", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: session.user.email }),
-        });
+    const fetchUserData = async () => {
+      if (!session) return;
 
+      try {
+        const res = await fetch("/api/getcurrentuser"); // GET request, no body
         const data = await res.json();
-        if (res.ok) setQueries(data.queries);
-        else setError(data.error || "Failed to load queries");
+
+        if (!res.ok) setError(data.error || "Failed to load user data");
+        else setUserData(data);
       } catch (err) {
         console.error(err);
         setError("Something went wrong 😢");
@@ -30,7 +27,7 @@ export default function ProfilePage() {
       }
     };
 
-    fetchQueries();
+    fetchUserData();
   }, [session]);
 
   if (!session)
@@ -44,6 +41,13 @@ export default function ProfilePage() {
     return (
       <div className="flex justify-center items-center min-h-screen bg-black text-white">
         <p className="text-gray-400 animate-pulse">Loading your data...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-black text-white">
+        <p className="text-red-500">{error}</p>
       </div>
     );
 
@@ -61,21 +65,43 @@ export default function ProfilePage() {
         </div>
 
         <h1 className="text-3xl font-bold mb-2 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          👤 {session.user.username}'s Profile
+          👤 {userData.username}'s Profile
         </h1>
-        <p className="text-center text-gray-400 mb-8">
-          {session.user.email} · {queries.length} Queries
-        </p>
 
-        {error && (
-          <p className="text-red-400 text-center mb-4 font-semibold">{error}</p>
-        )}
+        <div className="text-center text-gray-400 mb-6 space-y-2">
+  <p>Email: {userData.email}</p>
+  <p>
+    Role: <span className="text-blue-400 font-semibold">{userData.role}</span>
+  </p>
+  {userData.skills && userData.skills.length > 0 ? (
+    <div className="flex flex-wrap justify-center gap-2 mt-1">
+      {userData.skills.map((skill, i) => (
+        <span
+          key={i}
+          className="bg-blue-500/30 text-blue-300 px-2 py-1 rounded"
+        >
+          {skill}
+        </span>
+      ))}
+    </div>
+  ) : (
+    <p>Learner</p>
+  )}
 
-        {queries.length === 0 ? (
-          <p className="text-center text-gray-400">No queries yet 💤</p>
-        ) : (
+{userData.skills && userData.skills.length > 0 ? (
+    <div className="flex flex-wrap justify-center gap-2 mt-1">
+      <Link href={"/mod_queries"}>
+      <div className="bg-blue-300 text-black rounded-3xl w-60 p-3">see queries you've got</div>
+      </Link>
+    </div>
+  ) : (
+    <p>Learner</p>
+  )}
+</div>
+
+        {userData.queries && userData.queries.length > 0 ? (
           <div className="grid gap-5">
-            {queries.map((q, i) => (
+            {userData.queries.map((q, i) => (
               <div
                 key={i}
                 className="p-5 rounded-2xl bg-gray-800/60 border border-white/10 shadow-md hover:shadow-lg hover:bg-gray-800/80 transition-all"
@@ -101,6 +127,8 @@ export default function ProfilePage() {
               </div>
             ))}
           </div>
+        ) : (
+          <p className="text-center text-gray-400">No queries yet 💤</p>
         )}
       </div>
     </div>

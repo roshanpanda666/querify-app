@@ -6,11 +6,12 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
   try {
-    const { username, email, password } = await req.json();
+    const { username, email, password, role, skills } = await req.json();
 
-    if (!username || !email || !password) {
+    // Basic validation
+    if (!username || !email || !password || !role) {
       return NextResponse.json(
-        { error: "Please fill all the fields" },
+        { error: "Please fill all the required fields" },
         { status: 400 }
       );
     }
@@ -34,8 +35,8 @@ export async function POST(req) {
     const defaultQueries = [
       {
         query: "Welcome query",
-        answers: ["_"]
-      }
+        answers: ["_"],
+      },
     ];
 
     // Create new user
@@ -43,7 +44,9 @@ export async function POST(req) {
       username,
       email,
       password: hashedPassword,
-      queries: defaultQueries
+      role, // store role
+      skills: role === "Moderator" ? skills || [] : [], // only moderators have skills
+      queries: defaultQueries,
     });
 
     console.log("User Created ->", newUser);
@@ -56,7 +59,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error in registration:", error);
 
-    // Catch duplicate key error from MongoDB just in case
+    // Catch duplicate key error from MongoDB
     if (error.code === 11000) {
       return NextResponse.json(
         { error: "Email or username already exists" },
